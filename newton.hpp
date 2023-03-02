@@ -10,7 +10,8 @@ void main_routine(
                   double max_runge_error,
                   double K,
                   double eps,
-                  double delta
+                  double delta,
+                  int step_count
                  );
 
 #endif

@@ -34,7 +34,8 @@ void main_routine(
                   double max_runge_error,
                   double K,
                   double eps,
-                  double delta
+                  double delta,
+                  int step_count
                  )
 {
     double l1 = l1_start;
@@ -46,7 +47,7 @@ void main_routine(
     printf("Start l3: %12.6lf\n", l3);
 
 
-    for (int step = 0; step < 10; ++step) {
+    for (int step = 0; step < step_count; ++step) {
         cout << "##################################################################" << endl;
         cout << "Step: " << step << endl;
 
