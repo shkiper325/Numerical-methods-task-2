@@ -1,6 +1,7 @@
 #include <functional>
 #include <vector>
 #include <iostream>
+#include <list>
 
 #include <cmath>
 
@@ -105,13 +106,11 @@ ApproximatedFunction runge5_variable_step(
                                           double K
                                          )
 {
-    ApproximatedFunction ret;
+    auto ret_points = list<double>();
+    auto ret_vals = list<Point>();
 
-    ret.points = vector<double>();
-    ret.vals = vector<Point>();
-
-    ret.points.push_back(a);
-    ret.vals.push_back(start_val);
+    ret_points.push_back(a);
+    ret_vals.push_back(start_val);
 
     double t = a;
     double curr_h = start_h;
@@ -119,7 +118,7 @@ ApproximatedFunction runge5_variable_step(
 
     while (true) {
         while (true) {
-            Point yt = ret.vals.back();
+            Point yt = ret_vals.back();
 
             dy = runge_5_dy(f, t, yt, curr_h);
 
@@ -139,25 +138,41 @@ ApproximatedFunction runge5_variable_step(
             else break;
         }
 
-        ret.points.push_back(t + curr_h);
-        ret.vals.push_back(ret.vals.back() + dy);
+        ret_points.push_back(t + curr_h);
+        ret_vals.push_back(ret_vals.back() + dy);
 
         if (t + curr_h >= b) break;
         t += curr_h;
     }
 
-    dy = runge_5_dy(f, t, ret.vals.back(), b - t);
+    dy = runge_5_dy(f, t, ret_vals.back(), b - t);
 
-    ret.points.push_back(b);
-    ret.vals.push_back(ret.vals.back() + dy);
+    ret_points.push_back(b);
+    ret_vals.push_back(ret_vals.back() + dy);
+
+    ApproximatedFunction ret;
+    
+    ret.points = vector<double>(ret_points.size());
+    ret.vals = vector<Point>(ret_vals.size());
+    
+    int i = 0;
+    for(auto it = ret_points.begin(); it != ret_points.end(); ++it) {
+        ret.points[i] = *it;
+        ++i;
+    }
+    i = 0;
+    for(auto it = ret_vals.begin(); it != ret_vals.end(); ++it) {
+        ret.vals[i] = *it;
+        ++i;
+    }
 
     return ret;
 }
 
 void test_runge5_variable_step() {
     double start_h = 0.01;
-    double eps = 1e-7;
-    double K = 5;
+    double eps = 1e-5;
+    double K = 3;
 
     auto f = [](double t, Point y) -> Point {
         return Point(t + y.p, y.x - t);
