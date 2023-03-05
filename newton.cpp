@@ -28,23 +28,14 @@ function<Point(NT,Point)> gen_f(NT alpha, NT l1, NT l2) {
     };
 }
 
-double Fedorenko_norm(vector<NT> x, vector<NT> F) {
-    int N = F.size();
-    vector<NT> F_dot(N);
+double Fedorenko_norm(vector<NT> F, vector<NT> dF) {
+    NT a, b, c;
 
-    F_dot[0] = (F[1] - F[0]) / (x[1] - x[0]);
-    F_dot[N - 1] = (F[N - 1] - F[N - 2]) / (x[N - 1] - x[N - 2]);
-    for (int i = 1; i < N - 1; ++i) {
-        F_dot[i] = (F[i + 1] - F[i - 1]) / (x[i + 1] - x[i - 1]);
-    }
+    a = F[0] * F[0] / (dF[0] * dF[0] + dF[1] * dF[1] + dF[2] * dF[2]);
+    b = F[1] * F[1] / (dF[3] * dF[3] + dF[4] * dF[4] + dF[5] * dF[5]);
+    c = F[2] * F[2] / (dF[6] * dF[6] + dF[7] * dF[7] + dF[8] * dF[8]);
 
-    double ret = 0;
-    for (int i = 0; i < N; ++i) {
-        double new_ret = double(fabsq(F[i] / F_dot[i]));
-        ret = ret > new_ret ? ret : new_ret;
-    }
-
-    return ret;
+    return sqrtq(a + b + c);
 }
 
 vector<NT> main_routine(
@@ -67,7 +58,7 @@ vector<NT> main_routine(
     // printf("Start l2: %12.6lf\n", double(l2));
     // printf("Start l3: %12.6lf\n", double(l3));
 
-    for (int step = 0; step < step_count; ++step) {
+    while(true) {
         // cout << "##################################################################" << endl;
         // cout << "Step: " << step << endl;
 
@@ -84,8 +75,9 @@ vector<NT> main_routine(
         };
 
         auto mat = jacobian(F, l1, l2, l3, eps, delta);
-        mat = inverse3x3(mat);
-        vector<NT> minus_dx = apply_mat_3x3to3(mat, F(l1, l2, l3));
+        auto inv_mat = inverse3x3(mat);
+        auto center_F = F(l1, l2, l3);
+        vector<NT> minus_dx = apply_mat_3x3to3(inv_mat, center_F);
 
         l1 -= minus_dx[0];
         l2 -= minus_dx[1];
@@ -96,9 +88,8 @@ vector<NT> main_routine(
         // printf("l2: %18.9lf\n", double(l2));
         // printf("l3: %18.9lf\n", double(l3));
 
-        ApproximatedFunction sol = runge5_variable_step(gen_f(alpha, l1, l2), 0, PI, Point(0, l3), start_h, max_runge_error);
-        vector<NT> x = p2vec(sol.vals)[0];
-        // printf("Fedorenko norm: %9.3e\n", Fedorenko_norm(sol.points, x));
+        NT FNorm = Fedorenko_norm(center_F, mat);
+        if (FNorm < 1e-14) break;
     }
 
     ApproximatedFunction sol = runge5_variable_step(gen_f(alpha, l1, l2), 0, PI, Point(0, l3), start_h, max_runge_error);
