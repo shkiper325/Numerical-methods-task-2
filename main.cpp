@@ -11,9 +11,9 @@
 using namespace std;
 
 void print_result(vector<NT> result) {
-    printf("p1(0): %18.9lf\n", double(result[0]));
-    printf("x1(Pi): %18.9lf\n", double(result[1]));
-    printf("B0: %18.9lf\n", double(result[2]));
+    printf("p1(0):      %18.9lf\n", double(result[0]));
+    printf("x1(Pi):     %18.9lf\n", double(result[1]));
+    printf("B0:         %18.9lf\n", double(result[2]));
 
 }
 
