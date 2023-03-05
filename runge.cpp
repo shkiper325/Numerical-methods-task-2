@@ -116,7 +116,15 @@ ApproximatedFunction runge5_variable_step(
     double curr_h = start_h;
     Point dy;
 
-    while (true) {
+    bool working = true;
+
+    int step_counter = 0;
+
+    while (working) {
+        if (t + curr_h > b) {
+            working = false;
+            curr_h = b - t;
+        }
         while (true) {
             Point yt = ret_vals.back();
 
@@ -125,30 +133,38 @@ ApproximatedFunction runge5_variable_step(
             auto dy1 = runge_5_dy(f, t, yt, curr_h / 2);
             auto dy2 = runge_5_dy(f, t + curr_h / 2, dy1, curr_h / 2);
 
-            auto error = (31. / 32. * (dy2 + dy1 - dy)).linf_norm();
+            auto error = (dy2 + dy1 - dy).linf_norm();
 
             if (error > eps) {
                 curr_h /= 2;
+                working = true;
+
                 continue;
             }
-            else if (error < eps / K) {
+            else if (error < eps / 31) {
+                ret_points.push_back(t + curr_h);
+                ret_vals.push_back(ret_vals.back() + dy);
+                
+                t += curr_h;
+
                 curr_h *= 2;
-                continue;
+
+                break;
             }
-            else break;
+            else {
+                ret_points.push_back(t + curr_h);
+                ret_vals.push_back(ret_vals.back() + dy);
+
+                t += curr_h;
+
+                break;
+            }
         }
 
-        ret_points.push_back(t + curr_h);
-        ret_vals.push_back(ret_vals.back() + dy);
-
-        if (t + curr_h >= b) break;
-        t += curr_h;
+        ++step_counter;
     }
 
-    dy = runge_5_dy(f, t, ret_vals.back(), b - t);
-
-    ret_points.push_back(b);
-    ret_vals.push_back(ret_vals.back() + dy);
+    cout << "Runge-Kutta used " << step_counter << " steps" << endl;
 
     ApproximatedFunction ret;
     

@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         0.1,
         0.1,
         0.01,
-        1e-5,
+        1e-8,
         10,
         1e-7,
         1e-7,
