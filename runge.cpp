@@ -166,7 +166,7 @@ ApproximatedFunction runge5_variable_step(
         ++step_counter;
     }
 
-    cout << "Runge-Kutta used " << step_counter << " steps" << endl;
+    // cout << "Runge-Kutta used " << step_counter << " steps" << endl;
 
     ApproximatedFunction ret;
     

@@ -1,11 +1,13 @@
 #ifndef NEWTON_HPP
 #define NEWTON_HPP
 
+#include <vector>
+
 #include <quadmath.h>
 
 #include "number_type.hpp"
 
-void main_routine(
+std::vector<NT> main_routine(
                   NT alpha,
                   NT l1_start,
                   NT l2_start,
