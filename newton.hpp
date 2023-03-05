@@ -8,7 +8,6 @@ void main_routine(
                   double l3_start,
                   double start_h,
                   double max_runge_error,
-                  double K,
                   double eps,
                   double delta,
                   int step_count

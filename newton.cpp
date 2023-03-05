@@ -10,7 +10,7 @@
 
 using namespace std;
 
-const double PI = 3.1415;
+const double PI = 3.1415926535897932384626433832795;
 
 function<Point(double,Point)> gen_f(double alpha, double l1, double l2) {
     return [alpha = alpha, l1 = l1, l2 = l2](double t, Point y) -> Point {
@@ -32,7 +32,6 @@ void main_routine(
                   double l3_start,
                   double start_h,
                   double max_runge_error,
-                  double K,
                   double eps,
                   double delta,
                   int step_count
@@ -51,19 +50,19 @@ void main_routine(
         cout << "##################################################################" << endl;
         cout << "Step: " << step << endl;
 
-        auto F = [alpha = alpha, start_h = start_h, max_runge_error = max_runge_error, K = K](double l1, double l2, double l3) -> vector<double> {
-            ApproximatedFunction sol = runge5_variable_step(gen_f(alpha, l1, l2), 0, PI, Point(0, l3), start_h, max_runge_error, K);
+        auto F = [alpha = alpha, start_h = start_h, max_runge_error = max_runge_error](double l1, double l2, double l3) -> vector<double> {
+            ApproximatedFunction sol = runge5_variable_step(gen_f(alpha, l1, l2), 0, PI, Point(0, l3), start_h, max_runge_error);
             
             vector<vector<double> > sol_vectorized = p2vec(sol.vals);
 
-            double F1 = integrate(sol.points, sol_vectorized[0], [](double t) -> double {return sin(t);}) - 1;
-            double F2 = integrate(sol.points, sol_vectorized[0], [alpha = alpha](double t) -> double {return cos(t) / (1 + alpha * t * t);});
+            double F1 = integrate(sol.points, sol_vectorized[0], [](double t) -> double {return sin(t);}) - 1.;
+            double F2 = integrate(sol.points, sol_vectorized[0], [alpha = alpha](double t) -> double {return cos(t) / (1. + alpha * t * t);});
             double F3 = sol_vectorized[1].back();
 
             return {F1, F2, F3};
         };
 
-        auto mat = jacobian(F, l1, l2, l3, 1e-7, 1e-7);
+        auto mat = jacobian(F, l1, l2, l3, eps, delta);
         mat = inverse3x3(mat);
         vector<double> minus_dx = apply_mat_3x3to3(mat, F(l1, l2, l3));
 
@@ -72,9 +71,9 @@ void main_routine(
         l3 -= minus_dx[2];
 
         printf("\n");
-        printf("l1: %12.6lf\n", l1);
-        printf("l2: %12.6lf\n", l2);
-        printf("l3: %12.6lf\n", l3);
+        printf("l1: %18.9lf\n", l1);
+        printf("l2: %18.9lf\n", l2);
+        printf("l3: %18.9lf\n", l3);
     }
 
     printf("\nDone!\n");

@@ -32,10 +32,9 @@ int main(int argc, char *argv[]) {
         0.1,
         0.1,
         0.01,
-        1e-8,
-        10,
-        1e-7,
-        1e-7,
+        1e-16,
+        1e-14,
+        1e-14,
         step_count
     );
 

@@ -25,8 +25,7 @@ ApproximatedFunction runge5_variable_step(
                                           double b,
                                           Point start_val,
                                           double start_h,
-                                          double eps,
-                                          double M
+                                          double eps
                                          );
 
 void test_runge5_constant_step();

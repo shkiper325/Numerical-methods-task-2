@@ -87,10 +87,10 @@ Point runge_5_dy(
     Point k2 = h * f(t + h / 2, yt + k1 / 2);
     Point k3 = h * f(t + h / 2, yt + (k1 + k2) / 4);
     Point k4 = h * f(t + h, yt - k2 + 2 * k3);
-    Point k5 = h * f(t + 2 * h / 3, yt + (7 * k1 + 10 * k2 + k4));
-    Point k6 = h * f(t + h / 5, yt + (28 * k1 - 125 * k2 + 546 * k3 + 54 * k4 -378 * k5) / 625);
+    Point k5 = h * f(t + 2 * h / 3, yt + (7 * k1 + 10 * k2 + k4) / 27);
+    Point k6 = h * f(t + h / 5, yt + (28 * k1 - 125 * k2 + 546 * k3 + 54 * k4 - 378 * k5) / 625);
 
-    Point dy = k1 / 24 + 5 * k4 / 48 + 27 * k5 / 56 + 125 * k6 / 336;
+    Point dy = k1 / 24 + (5 * k4) / 48 + (27 * k5) / 56 + (125 * k6) / 336;
 
     return dy;
 }
@@ -102,8 +102,7 @@ ApproximatedFunction runge5_variable_step(
                                           double b,
                                           Point start_val,
                                           double start_h,
-                                          double eps,
-                                          double K
+                                          double eps
                                          )
 {
     auto ret_points = list<double>();
@@ -131,7 +130,7 @@ ApproximatedFunction runge5_variable_step(
             dy = runge_5_dy(f, t, yt, curr_h);
 
             auto dy1 = runge_5_dy(f, t, yt, curr_h / 2);
-            auto dy2 = runge_5_dy(f, t + curr_h / 2, dy1, curr_h / 2);
+            auto dy2 = runge_5_dy(f, t + curr_h / 2, yt + dy1, curr_h / 2);
 
             auto error = (dy2 + dy1 - dy).linf_norm();
 
@@ -143,7 +142,7 @@ ApproximatedFunction runge5_variable_step(
             }
             else if (error < eps / 31) {
                 ret_points.push_back(t + curr_h);
-                ret_vals.push_back(ret_vals.back() + dy);
+                ret_vals.push_back(ret_vals.back() + dy1 + dy2);
                 
                 t += curr_h;
 
@@ -153,7 +152,7 @@ ApproximatedFunction runge5_variable_step(
             }
             else {
                 ret_points.push_back(t + curr_h);
-                ret_vals.push_back(ret_vals.back() + dy);
+                ret_vals.push_back(ret_vals.back() + dy1 + dy2);
 
                 t += curr_h;
 
@@ -194,7 +193,7 @@ void test_runge5_variable_step() {
         return Point(t + y.p, y.x - t);
     };
 
-    ApproximatedFunction sol = runge5_variable_step(f, 2, 3, Point(1, 2), start_h, eps, K);
+    ApproximatedFunction sol = runge5_variable_step(f, 2, 3, Point(1, 2), start_h, eps);
 
     int n = sol.points.size() - 1;
 
