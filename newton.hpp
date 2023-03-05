@@ -1,15 +1,19 @@
 #ifndef NEWTON_HPP
 #define NEWTON_HPP
 
+#include <quadmath.h>
+
+#include "number_type.hpp"
+
 void main_routine(
-                  long double alpha,
-                  long double l1_start,
-                  long double l2_start,
-                  long double l3_start,
-                  long double start_h,
-                  long double max_runge_error,
-                  long double eps,
-                  long double delta,
+                  NT alpha,
+                  NT l1_start,
+                  NT l2_start,
+                  NT l3_start,
+                  NT start_h,
+                  NT max_runge_error,
+                  NT eps,
+                  NT delta,
                   int step_count
                  );
 

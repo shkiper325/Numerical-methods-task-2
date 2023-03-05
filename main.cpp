@@ -1,8 +1,11 @@
 #include <iostream>
 
+#include <quadmath.h>
+
 #include "runge.hpp"
 #include "utils.hpp"
 #include "newton.hpp"
+#include "number_type.hpp"
 
 using namespace std;
 
@@ -15,7 +18,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    long double alpha;
+    NT alpha;
     int step_count;
     try {
         alpha = atof(argv[1]);
@@ -28,15 +31,27 @@ int main(int argc, char *argv[]) {
 
     main_routine(
         alpha,
-        0.1,
-        0.1,
-        0.1,
+        -0.923399448, //0.1,
+        -1.175708690, //0.1
+        1.846798897,  //0.1,
         0.01,
+        1e-25L,
         1e-20L,
-        1e-14L,
-        1e-14L,
+        1e-20L,
         step_count
     );
 
     return 0;
 }
+
+    // main_routine(
+    //     alpha,
+    //     0.1,
+    //     0.1,
+    //     0.1,
+    //     0.01,
+    //     1e-20L,
+    //     1e-14L,
+    //     1e-14L,
+    //     step_count
+    // );

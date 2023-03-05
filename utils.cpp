@@ -4,46 +4,49 @@
 #include <cmath>
 #include <cstdio>
 
+#include <quadmath.h>
+
 using namespace std;
 
 #include "Point.hpp"
 #include "utils.hpp"
+#include "number_type.hpp"
 
-long double C_dist(vector<long double> f, vector<long double> g) {
-    long double ret = 0;
+NT C_dist(vector<NT> f, vector<NT> g) {
+    NT ret = 0;
 
     for (int i = 0; i < f.size(); ++i) {
-        ret = max(ret, fabs(f[i] - g[i]));
+        ret = maxq(ret, fabsq(f[i] - g[i]));
     }
 
     return ret;
 }
 
-vector<vector<long double> > p2vec(vector<Point> vec) {
-    auto x = vector<long double>(vec.size());
-    auto p = vector<long double>(vec.size());
+vector<vector<NT> > p2vec(vector<Point> vec) {
+    auto x = vector<NT>(vec.size());
+    auto p = vector<NT>(vec.size());
 
     for (int i = 0; i < vec.size(); ++i) {
         x[i] = vec[i].x;
         p[i] = vec[i].p;
     }
 
-    return vector<vector<long double> >({x, p});
+    return vector<vector<NT> >({x, p});
 }
 
-void dump_vec(vector<long double> vec, string path) {
+void dump_vec(vector<NT> vec, string path) {
     auto fd = fopen(path.c_str(), "w");
     auto m = vec.size();
 
     for (int i = 0; i < m; ++i) {
-        fprintf(fd, "%30.20Lf\n", vec[i]);
+        fprintf(fd, "%30.20lf\n", double(vec[i]));
     }
 
     fclose(fd);
 }
 
-long double integrate(vector<long double> t, vector<long double> x, function<long double(long double)> f) {
-    long double ret = 0;
+NT integrate(vector<NT> t, vector<NT> x, function<NT(NT)> f) {
+    NT ret = 0;
 
     for(int i = 0; i < t.size() - 1; ++i) {
         ret += (x[i] * f(t[i]) + x[i + 1] * f(t[i + 1])) / 2 * (t[i + 1] - t[i]);
@@ -52,11 +55,11 @@ long double integrate(vector<long double> t, vector<long double> x, function<lon
     return ret;
 }
 
-vector<long double> jacobian(function<vector<long double>(long double, long double, long double)> f, long double x, long double y, long double z, long double eps, long double delta) {
-    vector<long double> ret(9);
+vector<NT> jacobian(function<vector<NT>(NT, NT, NT)> f, NT x, NT y, NT z, NT eps, NT delta) {
+    vector<NT> ret(9);
 
-    vector<long double> values_right = f(x + delta, y, z);
-    vector<long double> values_left  = f(x - delta, y, z);
+    vector<NT> values_right = f(x + delta, y, z);
+    vector<NT> values_left  = f(x - delta, y, z);
 
     ret[0] = (values_right[0] - values_left[0]) / (2 * eps);
     ret[3] = (values_right[1] - values_left[1]) / (2 * eps);
@@ -79,20 +82,20 @@ vector<long double> jacobian(function<vector<long double>(long double, long doub
     return ret;
 }
 
-vector<long double> inverse3x3(vector<long double> mat) {
-    long double a = mat[0];
-    long double b = mat[1];
-    long double c = mat[2];
-    long double d = mat[3];
-    long double e = mat[4];
-    long double f = mat[5];
-    long double g = mat[6];
-    long double h = mat[7];
-    long double i = mat[8];
+vector<NT> inverse3x3(vector<NT> mat) {
+    NT a = mat[0];
+    NT b = mat[1];
+    NT c = mat[2];
+    NT d = mat[3];
+    NT e = mat[4];
+    NT f = mat[5];
+    NT g = mat[6];
+    NT h = mat[7];
+    NT i = mat[8];
 
-    long double det = a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
+    NT det = a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
 
-    vector<long double> ret(9);
+    vector<NT> ret(9);
 
     ret[0] = (e * i - f * h) / det;
     ret[1] = (c * h - b * i) / det;
@@ -107,14 +110,14 @@ vector<long double> inverse3x3(vector<long double> mat) {
     return ret;
 }
 
- void print_mat3x3(vector<long double> mat) {
-    printf("%12.6Lf %12.6Lf %12.6Lf\n", mat[0], mat[1], mat[2]);
-    printf("%12.6Lf %12.6Lf %12.6Lf\n", mat[3], mat[4], mat[5]);
-    printf("%12.6Lf %12.6Lf %12.6Lf\n", mat[6], mat[7], mat[8]);
+ void print_mat3x3(vector<NT> mat) {
+    printf("%12.6lf %12.6lf %12.6lf\n", double(mat[0]), double(mat[1]), double(mat[2]));
+    printf("%12.6lf %12.6lf %12.6lf\n", double(mat[3]), double(mat[4]), double(mat[5]));
+    printf("%12.6lf %12.6lf %12.6lf\n", double(mat[6]), double(mat[7]), double(mat[8]));
 }
 
  void test_jacobian_and_inverse3x3() {
-    auto f = [](long double x, long double y, long double z) -> vector<long double> {return {x + 2 * y * z, x * x+ y * y + z, sqrt(x * y * z)};};
+    auto f = [](NT x, NT y, NT z) -> vector<NT> {return {x + 2 * y * z, x * x+ y * y + z, static_cast<NT>(sqrtq(x * y * z))};};
     
     auto mat = jacobian(f, 2, 3, 4, 1e-7, 1e-7);
     mat = inverse3x3(mat);
@@ -122,12 +125,16 @@ vector<long double> inverse3x3(vector<long double> mat) {
     print_mat3x3(mat);
 }
 
- vector<long double> apply_mat_3x3to3 (vector<long double> mat, vector<long double> vec) {
-    vector<long double> ret(3);
+ vector<NT> apply_mat_3x3to3 (vector<NT> mat, vector<NT> vec) {
+    vector<NT> ret(3);
 
     ret[0] = mat[0] * vec[0] + mat[1] * vec[1] + mat[2] * vec[2];
     ret[1] = mat[3] * vec[0] + mat[4] * vec[1] + mat[5] * vec[2];
     ret[2] = mat[6] * vec[0] + mat[7] * vec[1] + mat[8] * vec[2];
 
     return ret;
+}
+
+NT maxq(NT a, NT b) {
+    return a > b ? a : b;
 }
