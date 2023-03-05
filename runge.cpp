@@ -11,24 +11,24 @@
 using namespace std;
 
 ApproximatedFunction runge5_constant_step(
-                                          std::function<Point(double, Point)> f,
-                                          double a,
-                                          double b,
+                                          std::function<Point(long double, Point)> f,
+                                          long double a,
+                                          long double b,
                                           Point start_val,
                                           int n)
 {
     ApproximatedFunction ret;
 
-    ret.points = vector<double>(n + 1);
+    ret.points = vector<long double>(n + 1);
     ret.vals = vector<Point>(n + 1);
 
-    double h = (b - a) / n;
+    long double h = (b - a) / n;
 
     ret.points[0] = a;
     ret.vals[0] = start_val;
 
     for (int i = 0; i < n; ++i) {
-        double xn = a + h * i;
+        long double xn = a + h * i;
         Point yn = ret.vals[i];
 
         Point k1 = h * f(xn, yn);
@@ -50,24 +50,24 @@ ApproximatedFunction runge5_constant_step(
 void test_runge5_constant_step() {
     int n = 1000;
 
-    auto f = [](double t, Point y) -> Point {
+    auto f = [](long double t, Point y) -> Point {
         return Point(t + y.p, y.x - t);
     };
 
     ApproximatedFunction sol = runge5_constant_step(f, 2, 3, Point(1, 2), 1000);
 
-    auto x_target_func = [](double t) -> double {return -1 - 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 + t;};
-    auto p_target_func = [](double t) -> double {return  1 + 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 - t;};
-    auto x_target = vector<double>(n + 1);
-    auto p_target = vector<double>(n + 1);
+    auto x_target_func = [](long double t) -> long double {return -1 - 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 + t;};
+    auto p_target_func = [](long double t) -> long double {return  1 + 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 - t;};
+    auto x_target = vector<long double>(n + 1);
+    auto p_target = vector<long double>(n + 1);
     for (int i = 0; i < n + 1; ++i) {
         x_target[i] = x_target_func(sol.points[i]);
         p_target[i] = p_target_func(sol.points[i]);
     }
    
     auto sol_vals_vectorized = p2vec(sol.vals);
-    vector<double> x_approx = sol_vals_vectorized[0];
-    vector<double> p_approx = sol_vals_vectorized[1];
+    vector<long double> x_approx = sol_vals_vectorized[0];
+    vector<long double> p_approx = sol_vals_vectorized[1];
 
     cout << "C-dist for x: " << C_dist(x_approx, x_target) << endl;
     cout << "C-dist for p: " << C_dist(p_approx, p_target) << endl;
@@ -77,10 +77,10 @@ void test_runge5_constant_step() {
 }
 
 Point runge_5_dy(
-                   std::function<Point(double,Point)> f,
-                   double t,
+                   std::function<Point(long double,Point)> f,
+                   long double t,
                    Point yt,
-                   double h
+                   long double h
                   )
 {
     Point k1 = h * f(t, yt);
@@ -97,22 +97,22 @@ Point runge_5_dy(
 
 
 ApproximatedFunction runge5_variable_step(
-                                          std::function<Point(double,Point)> f,
-                                          double a,
-                                          double b,
+                                          std::function<Point(long double,Point)> f,
+                                          long double a,
+                                          long double b,
                                           Point start_val,
-                                          double start_h,
-                                          double eps
+                                          long double start_h,
+                                          long double eps
                                          )
 {
-    auto ret_points = list<double>();
+    auto ret_points = list<long double>();
     auto ret_vals = list<Point>();
 
     ret_points.push_back(a);
     ret_vals.push_back(start_val);
 
-    double t = a;
-    double curr_h = start_h;
+    long double t = a;
+    long double curr_h = start_h;
     Point dy;
 
     bool working = true;
@@ -167,7 +167,7 @@ ApproximatedFunction runge5_variable_step(
 
     ApproximatedFunction ret;
     
-    ret.points = vector<double>(ret_points.size());
+    ret.points = vector<long double>(ret_points.size());
     ret.vals = vector<Point>(ret_vals.size());
     
     int i = 0;
@@ -185,11 +185,11 @@ ApproximatedFunction runge5_variable_step(
 }
 
 void test_runge5_variable_step() {
-    double start_h = 0.01;
-    double eps = 1e-5;
-    double K = 3;
+    long double start_h = 0.01;
+    long double eps = 1e-5;
+    long double K = 3;
 
-    auto f = [](double t, Point y) -> Point {
+    auto f = [](long double t, Point y) -> Point {
         return Point(t + y.p, y.x - t);
     };
 
@@ -197,18 +197,18 @@ void test_runge5_variable_step() {
 
     int n = sol.points.size() - 1;
 
-    auto x_target_func = [](double t) -> double {return -1 - 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 + t;};
-    auto p_target_func = [](double t) -> double {return  1 + 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 - t;};
-    auto x_target = vector<double>(n + 1);
-    auto p_target = vector<double>(n + 1);
+    auto x_target_func = [](long double t) -> long double {return -1 - 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 + t;};
+    auto p_target_func = [](long double t) -> long double {return  1 + 3 * exp(2 - t) / 2 + 3 * exp(-2 + t) / 2 - t;};
+    auto x_target = vector<long double>(n + 1);
+    auto p_target = vector<long double>(n + 1);
     for (int i = 0; i < n + 1; ++i) {
         x_target[i] = x_target_func(sol.points[i]);
         p_target[i] = p_target_func(sol.points[i]);
     }
    
     auto sol_vals_vectorized = p2vec(sol.vals);
-    vector<double> x_approx = sol_vals_vectorized[0];
-    vector<double> p_approx = sol_vals_vectorized[1];
+    vector<long double> x_approx = sol_vals_vectorized[0];
+    vector<long double> p_approx = sol_vals_vectorized[1];
 
     cout << "C-dist for x: " << C_dist(x_approx, x_target) << endl;
     cout << "C-dist for p: " << C_dist(p_approx, p_target) << endl;

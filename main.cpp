@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    double alpha;
+    long double alpha;
     int step_count;
     try {
         alpha = atof(argv[1]);
@@ -32,9 +32,9 @@ int main(int argc, char *argv[]) {
         0.1,
         0.1,
         0.01,
-        1e-16,
-        1e-14,
-        1e-14,
+        1e-20L,
+        1e-14L,
+        1e-14L,
         step_count
     );
 

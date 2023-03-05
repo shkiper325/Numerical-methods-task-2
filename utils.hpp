@@ -6,22 +6,22 @@
 
 #include "Point.hpp"
 
-double C_dist(std::vector<double> f, std::vector<double> g);
+long double C_dist(std::vector<long double> f, std::vector<long double> g);
 
-std::vector<std::vector<double> > p2vec(std::vector<Point> vec);
+std::vector<std::vector<long double> > p2vec(std::vector<Point> vec);
 
-void dump_vec(std::vector<double> vec, std::string path);
+void dump_vec(std::vector<long double> vec, std::string path);
 
-double integrate(std::vector<double> t, std::vector<double> x, std::function<double(double)> f);
+long double integrate(std::vector<long double> t, std::vector<long double> x, std::function<long double(long double)> f);
 
-std::vector<double> jacobian(std::function<std::vector<double>(double, double, double)> f, double x, double y, double z, double eps, double delta);
+std::vector<long double> jacobian(std::function<std::vector<long double>(long double, long double, long double)> f, long double x, long double y, long double z, long double eps, long double delta);
 
-std::vector<double> inverse3x3(std::vector<double> mat);
+std::vector<long double> inverse3x3(std::vector<long double> mat);
 
-void print_mat3x3(std::vector<double> mat);
+void print_mat3x3(std::vector<long double> mat);
 
 void test_jacobian_and_inverse3x3();
 
-std::vector<double> apply_mat_3x3to3 (std::vector<double> mat, std::vector<double> vec);
+std::vector<long double> apply_mat_3x3to3 (std::vector<long double> mat, std::vector<long double> vec);
 
 #endif
